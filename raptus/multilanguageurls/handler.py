@@ -96,6 +96,7 @@ class MultilanguageURLHandler(object):
                 if new_id is None:
                     return id
                 
+                new_id = safe_unicode(new_id)
                 invalid_id = True
                 if (not 'index' in self.storage or
                     not new_id in self.storage['index'] or
