@@ -3,7 +3,7 @@ from AccessControl.Permissions import copy_or_move
 
 from zope import interface
 from zope import schema
-from zope.component import queryMultiAdapter, adapts
+from zope.component import adapts
 from zope.formlib.form import EditForm, FormFields, action, applyData
 from zope.schema.interfaces import ValidationError
 from zope.app.form.interfaces import WidgetInputError
@@ -49,7 +49,7 @@ class RenameFormAdapter(object):
     def __init__(self, context):
         self.context = context
         self.languages = getToolByName(context, 'portal_languages').getSupportedLanguages()
-        self.handler = queryMultiAdapter((aq_parent(aq_inner(context)), aq_acquire(context, 'REQUEST')), interface=IMultilanguageURLHandler)
+        self.handler = IMultilanguageURLHandler(aq_parent(aq_inner(context)), None)
 
     def __setattr__(self, name, value):
         if name in ('languages', 'context', 'handler',):
@@ -100,7 +100,7 @@ class RenameForm(EditForm):
             not mtool.checkPermission(ModifyPortalContent, self.context)):
             self.form_fields = self.form_fields.omit('title')
         if IMultilanguageField.providedBy(title):
-            self.handler = queryMultiAdapter((aq_parent(aq_inner(self.context)), self.request), interface=IMultilanguageURLHandler)
+            self.handler = IMultilanguageURLHandler(aq_parent(aq_inner(self.context)), None)
             for lang in title.getAvailableLanguages(self.context):
                 self.languages[lang['name']] = lang['title']
                 self.form_fields = self.form_fields + FormFields(

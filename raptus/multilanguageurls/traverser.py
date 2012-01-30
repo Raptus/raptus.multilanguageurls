@@ -1,5 +1,5 @@
 from zope.interface import implements
-from zope.component import queryMultiAdapter, adapts
+from zope.component import adapts
 from zope.publisher.interfaces import IPublishTraverse, NotFound
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.annotation.interfaces import IAnnotatable
@@ -20,7 +20,7 @@ class MultilanguageTraverse(object):
         self.context = context
         self.request = request
         self.default_traverse = DefaultPublishTraverse(context, request)
-        self.handler = queryMultiAdapter((context, request), interface=IMultilanguageURLHandler)
+        self.handler = IMultilanguageURLHandler(context, None)
 
     def publishTraverse(self, request, name):
         try:

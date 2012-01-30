@@ -18,11 +18,10 @@ ANNOTATIONS_KEY = 'raptus.multilanguageurls.mapping'
 
 class MultilanguageURLHandler(object):
     implements(IMultilanguageURLHandler)
-    adapts(IAnnotatable, IHTTPRequest)
+    adapts(IAnnotatable)
 
-    def __init__(self, context, request):
+    def __init__(self, context):
         self.context = context
-        self.request = request
         annotations = IAnnotations(context)
         if not ANNOTATIONS_KEY in annotations:
             annotations[ANNOTATIONS_KEY] = OOBTree()
@@ -123,10 +122,10 @@ class MultilanguageURLHandler(object):
                 self.storage['index'][new_id] = id
                 if event:
                     self.dispatchEvent(id)
-            except ConflictError, e:
+            except ConflictError:
                 if field is not None and IMultilanguageField.providedBy(field):
                     field.resetLanguage()
-                raise e
+                raise
             except:
                 if field is not None and IMultilanguageField.providedBy(field):
                     field.resetLanguage()

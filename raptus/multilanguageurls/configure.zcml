@@ -48,6 +48,12 @@
         />
 
     <monkey:patch
+        class="OFS.Traversable.Traversable"
+        original="unrestrictedTraverse"
+        replacement=".patches.unrestrictedTraverse"
+        />
+
+    <monkey:patch
         class="Products.ZCatalog.Catalog.Catalog"
         original="catalogObject"
         replacement=".patches.catalogObject"
