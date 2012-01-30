@@ -2,16 +2,16 @@ from BTrees.OOBTree import OOBTree
 from Acquisition import aq_acquire
 
 from zope.interface import implements
-from zope.component import adapts
+from zope.component import adapts, queryMultiAdapter
 from zope.event import notify
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.annotation.interfaces import IAnnotatable, IAnnotations
 from OFS.interfaces import ITraversable
+from ZODB.POSException import ConflictError
 from Products.CMFPlone.utils import safe_unicode
 
 from raptus.multilanguagefields.interfaces import IMultilanguageField
 from raptus.multilanguageurls.interfaces import IMultilanguageURLHandler, MultilanguageIDModifiedEvent
-from zope.component._api import queryMultiAdapter
 
 ANNOTATIONS_KEY = 'raptus.multilanguageurls.mapping'
 
@@ -19,7 +19,7 @@ ANNOTATIONS_KEY = 'raptus.multilanguageurls.mapping'
 class MultilanguageURLHandler(object):
     implements(IMultilanguageURLHandler)
     adapts(IAnnotatable, IHTTPRequest)
-    
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -74,7 +74,7 @@ class MultilanguageURLHandler(object):
                 if not lang == 'index' and id in self.storage[lang]:
                     yield lang, self.storage[lang][id]
 
-    def get_translated_id(self, id, lang):
+    def get_translated_id(self, id, lang, event=True):
         """ Returns a translated ID of the object with the given ID and in the given language
         """
         id = safe_unicode(id)
@@ -83,28 +83,27 @@ class MultilanguageURLHandler(object):
         if not lang in self.storage:
             self.storage[lang] = OOBTree()
         if not id in self.storage[lang]:
+            field = None
             try:
                 obj = self.context[id]
                 field = obj.Schema()['title']
                 if not IMultilanguageField.providedBy(field):
                     return id
-                
+
                 field.setLanguage(lang)
                 new_id = obj.generateNewId()
                 field.resetLanguage()
-                
+
                 if new_id is None:
                     return id
-                
-                new_id = safe_unicode(new_id)
-                invalid_id = True
                 if (not 'index' in self.storage or
                     not new_id in self.storage['index'] or
                     not self.storage['index'][new_id] == id) and not new_id == id:
+                    invalid_id = False
                     check_id = getattr(obj, 'check_id', None)
                     if check_id is not None:
                         invalid_id = check_id(new_id, required=1)
-                    
+
                     # If check_id told us no, or if it was not found, make sure we have an
                     # id unique in the parent folder.
                     if invalid_id:
@@ -113,17 +112,24 @@ class MultilanguageURLHandler(object):
                             if check_id is None or check_id(new_id, required=1):
                                 new_id = unique_id
                                 invalid_id = False
-                    
+
                     if invalid_id:
                         return id
-                
+
                 new_id = safe_unicode(new_id)
                 self.storage[lang][id] = new_id
                 if not 'index' in self.storage:
                     self.storage['index'] = OOBTree()
                 self.storage['index'][new_id] = id
-                self.dispatchEvent(id)
+                if event:
+                    self.dispatchEvent(id)
+            except ConflictError, e:
+                if field is not None and IMultilanguageField.providedBy(field):
+                    field.resetLanguage()
+                raise e
             except:
+                if field is not None and IMultilanguageField.providedBy(field):
+                    field.resetLanguage()
                 return id
         return self.storage[lang][id]
 

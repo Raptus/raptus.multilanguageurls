@@ -31,7 +31,7 @@ class IMultilanguageURLHandler(interface.Interface):
         """ Iterator of lang, ID pairs of all available translated IDs for the given ID
         """
 
-    def get_translated_id(id, lang):
+    def get_translated_id(id, lang, event=True):
         """ Returns a translated ID of the given object and in the given language
         """
 

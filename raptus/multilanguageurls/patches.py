@@ -4,9 +4,11 @@ from BTrees.IOBTree import IOBTree
 from Acquisition import aq_inner, aq_parent, aq_acquire
 from OFS.Traversable import path2url
 
-from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.CMFPlone.interfaces import IPloneSiteRoot
+from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_callable
+from Products.CMFPlone.interfaces import IPloneSiteRoot
 
 from zope.component import queryMultiAdapter
 
@@ -15,7 +17,7 @@ from raptus.multilanguageurls.interfaces import IMultilanguageURLHandler
 
 # Patching OFS.Traversable.Traversable
 
-def _getTranslatedPhysicalPath(obj, lang=None, request=None):
+def _getTranslatedPhysicalPath(obj, lang=None, request=None, event=True):
     if not hasattr(obj, 'getId'):
         return ()
     if request is None:
@@ -30,12 +32,12 @@ def _getTranslatedPhysicalPath(obj, lang=None, request=None):
         if handler is not None:
             if lang is None:
                 lang = getToolByName(obj, 'portal_languages').getPreferredLanguage()
-            id = handler.get_translated_id(id, lang)
+            id = handler.get_translated_id(id, lang, event)
 
     path = (id,)
 
     if p is not None:
-        path = _getTranslatedPhysicalPath(p, lang, request) + path
+        path = _getTranslatedPhysicalPath(p, lang, request, event) + path
 
     return path
 
@@ -90,6 +92,8 @@ def catalogObject(self, object, uid, threshold=None, idxs=None,
     return total
 
 def updateTanslatedPaths(self, object, uid):
+    if ICatalogTool.providedBy(object):
+        return
     try:
         request = aq_acquire(object, 'REQUEST')
     except:
@@ -98,17 +102,22 @@ def updateTanslatedPaths(self, object, uid):
         if not hasattr(self, 'translated_paths'):
             self.translated_paths = OOBTree()
         index = self.uids.get(uid, None)
+        if index is None:
+            return
         langs = getToolByName(object, 'portal_languages').getSupportedLanguages()
         for lang in langs:
             if not lang in self.translated_paths:
                 self.translated_paths[lang] = IOBTree()
-            self.translated_paths[lang][index] = str('/'.join(_getTranslatedPhysicalPath(object, lang, request)))
+            self.translated_paths[lang][index] = str('/'.join(_getTranslatedPhysicalPath(object, lang, request, False)))
 Catalog.updateTanslatedPaths = updateTanslatedPaths
 
 def update_translated_paths(obj, event):
     catalog = getToolByName(obj, 'portal_catalog')
     def updateTranslatedPaths(obj, path=None):
-        if isinstance(obj, CatalogMultiplex):
+        if (base_hasattr(obj, 'indexObject') and
+            safe_callable(obj.indexObject) and
+            base_hasattr(obj, 'getPhysicalPath') and
+            safe_callable(obj.getPhysicalPath)):
             try:
                 catalog._catalog.updateTanslatedPaths(obj, '/'.join(obj.getPhysicalPath()))
             except:
