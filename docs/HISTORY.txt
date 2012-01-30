@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0a3 (2012-01-30)
+------------------
+
+* Fixed renaming process when creating new or moving existing objects
+
 1.0a2 (2012-01-30)
 ------------------
 

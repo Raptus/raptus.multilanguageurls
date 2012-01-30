@@ -23,7 +23,7 @@ class IMultilanguageURLHandler(interface.Interface):
         """ Sets the translated ID for the given language and ID
         """
 
-    def remove_translated_ids(id):
+    def remove_translated_ids(id, event=True):
         """ Removes all registered translated IDs for the given ID
         """
 
