@@ -23,14 +23,6 @@ class MultilanguageTraverse(object):
         self.handler = IMultilanguageURLHandler(context, None)
 
     def publishTraverse(self, request, name):
-        try:
-            return self.default_traverse.publishTraverse(request, name)
-        except NotFound:
-            pass
-        except KeyError:
-            pass
-        except AttributeError:
-            pass
         if self.handler is not None:
             ob = self.handler.get_object(name)
             if ob is not None:
@@ -43,6 +35,14 @@ class MultilanguageTraverse(object):
                     except:
                         pass
                 return ob
+        try:
+            return self.default_traverse.publishTraverse(request, name)
+        except NotFound:
+            pass
+        except KeyError:
+            pass
+        except AttributeError:
+            pass
         raise NotFound(self.context, name, self.request)
 
 
