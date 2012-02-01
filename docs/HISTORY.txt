@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0a5 (2012-02-01)
+------------------
+
+* Be more defensive when checking id containement in MultilanguageURLHandler
+* Added missing import in patches.py
+
 1.0a4 (2012-01-31)
 ------------------
 

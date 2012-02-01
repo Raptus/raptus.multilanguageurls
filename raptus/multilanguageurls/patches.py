@@ -2,6 +2,7 @@ from BTrees.OOBTree import OOBTree
 from BTrees.IOBTree import IOBTree
 
 from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.unauthorized import Unauthorized
 from AccessControl.ZopeGuards import guarded_getattr
 from Acquisition import aq_inner, aq_parent, aq_acquire, aq_base
 from Acquisition.interfaces import IAcquirer

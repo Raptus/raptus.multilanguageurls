@@ -35,7 +35,10 @@ class MultilanguageURLHandler(object):
         """ Sets the translated ID for the given language and ID
         """
         id, translated = safe_unicode(id), safe_unicode(translated)
-        if not id in self.context:
+        try:
+            if not id in self.context:
+                return
+        except:
             return
         if not lang in self.storage:
             self.storage[lang] = OOBTree()
@@ -70,16 +73,22 @@ class MultilanguageURLHandler(object):
         """ Iterator of lang, ID pairs of all available translated IDs for the given ID
         """
         id = safe_unicode(id)
-        if id in self.context:
-            for lang in self.storage:
-                if not lang == 'index' and id in self.storage[lang]:
-                    yield lang, self.storage[lang][id]
+        try:
+            if id in self.context:
+                for lang in self.storage:
+                    if not lang == 'index' and id in self.storage[lang]:
+                        yield lang, self.storage[lang][id]
+        except:
+            pass
 
     def get_translated_id(self, id, lang, event=True):
         """ Returns a translated ID of the object with the given ID and in the given language
         """
         id = safe_unicode(id)
-        if not id in self.context:
+        try:
+            if not id in self.context:
+                return id
+        except:
             return id
         if not lang in self.storage:
             self.storage[lang] = OOBTree()
