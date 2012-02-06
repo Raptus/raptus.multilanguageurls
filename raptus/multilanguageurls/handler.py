@@ -167,9 +167,10 @@ class MultilanguageURLHandler(object):
         """ Returns the languages of the given translated ID if available
         """
         id = safe_unicode(id)
+        actual = self.get_actual_id(id)
         langs = []
         for lang in self.storage.keys():
-            if not lang == 'index' and id in self.storage[lang].values():
+            if not lang == 'index' and (self.get_translated_id(actual, lang) == id):
                 langs.append(lang)
         return langs
 

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0a6 (2012-02-06)
+------------------
+
+* Added more robust check when getting the languages for a given translated ID
+
 1.0a5 (2012-02-01)
 ------------------
 
