@@ -107,7 +107,7 @@ class MultilanguageURLHandler(object):
                 field.resetLanguage()
 
                 if new_id is None:
-                    return id
+                    new_id = str('%s-%s' % (id, lang))
                 if (not 'index' in self.storage or
                     not new_id in self.storage['index'] or
                     not self.storage['index'][new_id] == id) and not new_id == id:
@@ -126,8 +126,10 @@ class MultilanguageURLHandler(object):
                                 invalid_id = False
 
                     if invalid_id:
-                        return id
+                        new_id = id
 
+                if self.get_actual_id(new_id) is not None:
+                    new_id = '%s-%s' % (new_id, lang)
                 new_id = safe_unicode(new_id)
                 self.storage[lang][id] = new_id
                 if not 'index' in self.storage:

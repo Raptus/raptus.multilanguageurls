@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0a7 (2012-04-19)
+------------------
+
+* Enforce a different ID for every language on object creation
+* Removed folder action to batch rename multiple objects, as this is not possible
+  with the current implementation (renaming is now only possible through the the
+  actions dropdown)
+
 1.0a6 (2012-02-06)
 ------------------
 
