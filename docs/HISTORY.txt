@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0a7 (2013-11-25)
+1.0a8 (2013-11-25)
 ------------------
 
 * Added missing patch for plones breadcrumbs view to create proper multilanguage
