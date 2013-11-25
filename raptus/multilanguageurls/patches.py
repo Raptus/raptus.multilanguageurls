@@ -327,10 +327,25 @@ from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 __old_getURL = AbstractCatalogBrain.getURL
 
 def getURL(self, relative=0):
-    if not hasattr(self.aq_parent._catalog, 'translated_paths'):
+    if not hasattr(self.aq_parent, '_catalog') or not hasattr(self.aq_parent._catalog, 'translated_paths'):
         return __old_getURL(self, relative)
     lang = getToolByName(self.aq_parent, 'portal_languages').getPreferredLanguage()
     if (not lang in self.aq_parent._catalog.translated_paths or
         not self.data_record_id_ in self.aq_parent._catalog.translated_paths[lang]):
         return __old_getURL(self, relative)
     return self.REQUEST.physicalPathToURL(self.aq_parent._catalog.translated_paths[lang][self.data_record_id_], relative)
+
+
+# Patching Products.CMFPlone.browser.navigation.get_id
+from Products.CMFPlone.browser import navigation
+
+__old_get_id = navigation.get_id
+
+def get_id(item):
+    if hasattr(item, 'getURL'):
+        return item.getURL().split('/')[-1]
+    handler = IMultilanguageURLHandler(item.aq_parent, None)
+    if handler is not None:
+        lang = getToolByName(item, 'portal_languages').getPreferredLanguage()
+        return handler.get_translated_id(__old_get_id(item), lang)
+    return __old_get_id(item)

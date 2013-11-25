@@ -71,6 +71,12 @@
         replacement=".patches.getURL"
         />
 
+    <monkey:patch
+        class="Products.CMFPlone.browser.navigation"
+        original="get_id"
+        replacement=".patches.get_id"
+        />
+
     <adapter
         factory=".traverser.MultilanguageTraverse"
         />
