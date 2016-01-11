@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0a9 (unreleased)
+1.0a9 (2016-01-11)
 ------------------
 
 - Add language code as prefix instead of sufix for new files.
