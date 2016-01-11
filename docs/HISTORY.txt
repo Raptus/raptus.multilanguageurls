@@ -4,7 +4,7 @@ Changelog
 1.0a9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add language code as prefix instead of sufix for new files.
 
 
 1.0a8 (2013-11-25)
